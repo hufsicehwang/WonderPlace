@@ -73,7 +73,7 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
     boolean isTrackingMode = false;
     ArrayList<Document> bigMartList = new ArrayList<>();
 
-    ArrayList<com.taehyuk.wonderplace.model.address_search.Document> documentArrayList = new ArrayList<>(); //지역명 검색 결과 리스트
+    ArrayList<Document> documentArrayList = new ArrayList<>(); //지역명 검색 결과 리스트
 
 
     @Override
@@ -120,14 +120,14 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
                     locationAdapter.clear();
                     locationAdapter.notifyDataSetChanged();
                     ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
-                    Call<AddressSearch> call = apiInterface.getSearchAddress( charSequence.toString(), 15);
-                    call.enqueue(new Callback<AddressSearch>() {
+                    Call<CategoryResult> call = apiInterface.getSearchLocation( charSequence.toString(), 15);
+                    call.enqueue(new Callback<CategoryResult>() {
                         @Override
-                        public void onResponse(@NotNull Call<AddressSearch> call, @NotNull Response<AddressSearch> response) {
+                        public void onResponse(@NotNull Call<CategoryResult> call, @NotNull Response<CategoryResult> response) {
                             text.setText(response.toString());
                             if (response.isSuccessful()) {
                                 assert response.body() != null;
-                                for (com.taehyuk.wonderplace.model.address_search.Document document : response.body().getDocuments()) {
+                                for (Document document : response.body().getDocuments()) {
                                     locationAdapter.addItem(document);
                                 }
                                 locationAdapter.notifyDataSetChanged();
@@ -135,7 +135,7 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
                         }
 
                         @Override
-                        public void onFailure(@NotNull Call<AddressSearch> call, @NotNull Throwable t) {
+                        public void onFailure(@NotNull Call<CategoryResult> call, @NotNull Throwable t) {
 
                         }
                     });
@@ -153,13 +153,6 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
                 // 입력이 끝났을 때
             }
         });
-
-
-
-
-
-
-
 
 
 
@@ -201,9 +194,9 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
 
     private void requestSearchLocal(double x, double y) {
 
-
+        //여밑에가 통신 코드를 메인에서 세팅해서 필요한거 불러오기
         ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);   // ApiInterface 객체에 레트로핏 객체를 매핑시키는 부분이다.
-        Call<CategoryResult> call = apiInterface.getSearchCategory( "MT1", x + "", y + "", 1000);
+        Call<CategoryResult> call = apiInterface.getSearchCategory("MT1", x + "", y + "", 1000);
         call.enqueue(new Callback<CategoryResult>() {
             @Override
             public void onResponse(@NonNull Call<CategoryResult> call, @NonNull Response<CategoryResult> response) {

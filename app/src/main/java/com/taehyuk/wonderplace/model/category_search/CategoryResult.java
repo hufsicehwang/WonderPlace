@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
-
+// 여긴 내가 모델을 받은걸 리스트화 시킨 별도로 만든
 public class CategoryResult implements Parcelable {
 
     @SerializedName("meta")

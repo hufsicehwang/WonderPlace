@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
+//통신을 하기 위해 모델을 만든거 밑에와 같은 형태로 만들고 게터세터 만들기
 public class Document implements Parcelable {
 
     @SerializedName("place_name")

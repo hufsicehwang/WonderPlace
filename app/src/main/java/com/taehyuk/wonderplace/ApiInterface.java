@@ -10,22 +10,21 @@ import retrofit2.http.Headers;
 import retrofit2.http.Query;
 
 
-//우선 밑에는 예시
+//밑에는 카카오와 통신하기 위해 헤더즈로 rest api를 밑과같은 형식으로 쓰고 @GET으로 @Query(카카오에서 보내라하는 파라메터들로 이뤄짐)로 요청한다.
 public interface ApiInterface
 {
     //장소이름으로 검색
+    @Headers("Authorization: KakaoAK 69406d6f78e94450237e9dc116fc151e")
     @GET("v2/local/search/keyword.json")
     Call<CategoryResult> getSearchLocation(
-            @Header("Authorization") String token,
             @Query("query") String query,
             @Query("size") int size
     );
 
-    //카테고리로 검색
+    //카테고리로 검색,
     @Headers("Authorization: KakaoAK 69406d6f78e94450237e9dc116fc151e")
     @GET("v2/local/search/category.json")
     Call<CategoryResult> getSearchCategory(
-//            @Header("Authorization") String token,
             @Query("category_group_code") String category_group_code,
             @Query("x") String x,
             @Query("y") String y,
@@ -45,7 +44,6 @@ public interface ApiInterface
     @Headers("Authorization: KakaoAK 69406d6f78e94450237e9dc116fc151e")
     @GET("v2/local/search/address.json")
     Call<AddressSearch> getSearchAddress(
-//            @Header("Authorization") String token,
             @Query("query") String query,
             @Query("size") int size
     );

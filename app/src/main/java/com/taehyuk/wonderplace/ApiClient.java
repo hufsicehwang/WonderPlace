@@ -2,7 +2,7 @@ package com.taehyuk.wonderplace;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
+// 여기는 레트로핏 통신을 하기 위한 기본 세팅
 public class ApiClient {
 
     private static final String BASE_URL = "https://dapi.kakao.com/";

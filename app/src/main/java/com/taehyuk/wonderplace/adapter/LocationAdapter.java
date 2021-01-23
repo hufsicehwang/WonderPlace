@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.taehyuk.wonderplace.R;
-import com.taehyuk.wonderplace.model.address_search.Document;
+import com.taehyuk.wonderplace.model.category_search.Document;
 
 import java.util.ArrayList;
 
@@ -64,14 +64,16 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.Locati
     @Override
     public void onBindViewHolder(@NonNull LocationViewHolder holder, int i) {
         final Document model = items.get(i);
-        holder.placeNameText.setText(model.getAddressName());
-//        holder.addressText.setText(model.getAddressName());
+        holder.placeNameText.setText(model.getPlaceName());
+        holder.addressText.setText(model.getAddressName());
         holder.placeNameText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                editText.setText(model.getAddressName());
+                editText.setText(model.getPlaceName());
                 recyclerView.setVisibility(View.GONE);
 //                BusProvider.getInstance().post(model);
+
+                // 여기에 좌표 넣으면 될듯
             }
         });
     }
@@ -79,14 +81,13 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.Locati
 
     public class LocationViewHolder extends RecyclerView.ViewHolder {
         TextView placeNameText;
-//        TextView addressText;
+        TextView addressText;
 
         public LocationViewHolder(@NonNull final View itemView) {
             super(itemView);
             placeNameText = itemView.findViewById(R.id.ltem_location_tv_placename);
-//            addressText = itemView.findViewById(R.id.ltem_location_tv_address);
+            addressText = itemView.findViewById(R.id.ltem_location_tv_address);
         }
     }
 }
 
-//여기서 커밋 테스트 합니다.

@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import net.daum.android.map.MapActivity;
+//import net.daum.android.map.MapActivity;
 import net.daum.mf.map.api.MapView;
 
 public class MainActivity extends AppCompatActivity {
