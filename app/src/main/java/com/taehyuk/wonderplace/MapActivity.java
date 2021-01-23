@@ -26,6 +26,8 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 import com.taehyuk.wonderplace.adapter.LocationAdapter;
 import com.taehyuk.wonderplace.model.address_search.AddressSearch;
 import com.taehyuk.wonderplace.model.category_search.CategoryResult;
@@ -56,9 +58,10 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
     private MapView mMapView;
     ViewGroup mMapViewContainer;
     private Button btn;
+    private Button search_btn;
     EditText mSearchEdit;
     RecyclerView recyclerView;
-    private TextView text;
+
 
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int PERMISSIONS_REQUEST_CODE = 100;
@@ -71,9 +74,12 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
     private double mSearchLat = -1;
     private String mSearchName;
     boolean isTrackingMode = false;
+    Bus bus = BusProvider.getInstance();
     ArrayList<Document> bigMartList = new ArrayList<>();
 
     ArrayList<Document> documentArrayList = new ArrayList<>(); //지역명 검색 결과 리스트
+
+    MapPOIItem searchMarker = new MapPOIItem();
 
 
     @Override
@@ -86,6 +92,8 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
         mMapView = new MapView(this);
         mMapViewContainer = findViewById(R.id.map_view);
         mMapViewContainer.addView(mMapView);
+        bus.register(this); //정류소 등록
+
 
         btn = findViewById(R.id.btn);
         btn.setOnClickListener(new Button.OnClickListener() {
@@ -95,7 +103,25 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
                 requestSearchLocal(mCurrentLng, mCurrentLat);
             }
         });
-        text=findViewById(R.id.test);
+
+        search_btn = findViewById(R.id.search_btn);
+        search_btn.setOnClickListener(new Button.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                isTrackingMode = false;
+                mMapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
+                if (mSearchLat != -1 && mSearchLng != -1) {
+                    mMapView.removeAllPOIItems();
+                    mMapView.removeAllCircles();
+                    mMapView.addPOIItem(searchMarker);
+                    requestSearchLocal(mSearchLng, mSearchLat);
+                } else {
+                }
+
+            }
+        });
+
         mSearchEdit = findViewById(R.id.map_et_search);
         recyclerView = findViewById(R.id.map_recyclerview);
         LocationAdapter locationAdapter = new LocationAdapter(documentArrayList, getApplicationContext(), mSearchEdit, recyclerView);
@@ -124,7 +150,6 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
                     call.enqueue(new Callback<CategoryResult>() {
                         @Override
                         public void onResponse(@NotNull Call<CategoryResult> call, @NotNull Response<CategoryResult> response) {
-                            text.setText(response.toString());
                             if (response.isSuccessful()) {
                                 assert response.body() != null;
                                 for (Document document : response.body().getDocuments()) {
@@ -151,6 +176,22 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
             @Override
             public void afterTextChanged(Editable editable) {
                 // 입력이 끝났을 때
+            }
+        });
+
+        mSearchEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if (hasFocus) {
+                } else {
+                    recyclerView.setVisibility(View.GONE);
+                }
+            }
+        });
+        mSearchEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                FancyToast.makeText(getApplicationContext(), "검색리스트에서 장소를 선택해주세요", FancyToast.LENGTH_SHORT, FancyToast.INFO, true).show();
             }
         });
 
@@ -539,6 +580,33 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
     public void onDaumMapOpenAPIKeyAuthenticationResult(MapView mapView, int i, String s) {
 
     }
+
+    @Subscribe //검색예시 클릭시 이벤트 오토버스
+    public void search(Document document) {//public항상 붙여줘야함
+//        FancyToast.makeText(getApplicationContext(), document.getPlaceName() + " 검색", FancyToast.LENGTH_SHORT, FancyToast.SUCCESS, true).show();
+        mSearchName = document.getPlaceName();
+        mSearchLng = Double.parseDouble(document.getX());
+        mSearchLat = Double.parseDouble(document.getY());
+        mMapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(mSearchLat, mSearchLng), true);
+        mMapView.removePOIItem(searchMarker);
+        searchMarker.setItemName(mSearchName);
+        searchMarker.setTag(10000);
+        MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(mSearchLat, mSearchLng);
+        searchMarker.setMapPoint(mapPoint);
+        searchMarker.setMarkerType(MapPOIItem.MarkerType.BluePin); // 기본으로 제공하는 BluePin 마커 모양.
+        searchMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
+        //마커 드래그 가능하게 설정
+        searchMarker.setDraggable(true);
+        mMapView.addPOIItem(searchMarker);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        bus.unregister(this); //이액티비티 떠나면 정류소 해제해줌
+    }
+
+
 }
 
 

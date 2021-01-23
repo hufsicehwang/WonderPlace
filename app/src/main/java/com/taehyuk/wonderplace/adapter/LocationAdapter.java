@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.taehyuk.wonderplace.BusProvider;
 import com.taehyuk.wonderplace.R;
 import com.taehyuk.wonderplace.model.category_search.Document;
 
@@ -43,10 +44,10 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.Locati
         items.clear();
     }
 
-//    @Override
-//    public long getItemId(int position) {
-//        return Long.parseLong(items.get(position).getId());
-//    }
+    @Override
+    public long getItemId(int position) {
+        return Long.parseLong(items.get(position).getId());
+    }
 
     @Override
     public int getItemViewType(int position) {
@@ -71,9 +72,7 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.Locati
             public void onClick(View view) {
                 editText.setText(model.getPlaceName());
                 recyclerView.setVisibility(View.GONE);
-//                BusProvider.getInstance().post(model);
-
-                // 여기에 좌표 넣으면 될듯
+                BusProvider.getInstance().post(model);
             }
         });
     }
