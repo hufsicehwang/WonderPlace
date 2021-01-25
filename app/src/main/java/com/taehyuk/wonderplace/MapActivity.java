@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.LocationManager;
@@ -59,6 +60,7 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
     ViewGroup mMapViewContainer;
     private Button btn;
     private Button search_btn;
+    private Button currentlocation;
     EditText mSearchEdit;
     RecyclerView recyclerView;
 
@@ -85,7 +87,7 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//화면 못움직이게
         setContentView(R.layout.activity_map);
 
 //        mMapView = (MapView) findViewById(R.id.map_view);
@@ -104,23 +106,46 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
             }
         });
 
-        search_btn = findViewById(R.id.search_btn);
-        search_btn.setOnClickListener(new Button.OnClickListener() {
+//        search_btn = findViewById(R.id.search_btn);
+//        search_btn.setOnClickListener(new Button.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                isTrackingMode = false;
+//                mMapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
+//                if (mSearchLat != -1 && mSearchLng != -1) {
+//                    mMapView.removeAllPOIItems();
+//                    mMapView.removeAllCircles();
+//                    mMapView.addPOIItem(searchMarker);
+//                    requestSearchLocal(mSearchLng, mSearchLat);
+//                } else {
+//                }
+//
+//            }
+//        });
+
+        currentlocation = findViewById(R.id.currentlocation);
+        currentlocation.setOnClickListener(new Button.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                isTrackingMode = false;
-                mMapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
-                if (mSearchLat != -1 && mSearchLng != -1) {
-                    mMapView.removeAllPOIItems();
-                    mMapView.removeAllCircles();
-                    mMapView.addPOIItem(searchMarker);
-                    requestSearchLocal(mSearchLng, mSearchLat);
-                } else {
-                }
+                if (!checkLocationServicesStatus()) {
 
+                    showDialogForLocationServiceSetting();
+                }else {
+
+                    checkRunTimePermission();
+
+
+                }
             }
         });
+
+
+
+
+
+
 
         mSearchEdit = findViewById(R.id.map_et_search);
         recyclerView = findViewById(R.id.map_recyclerview);
@@ -217,15 +242,18 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
 //        mMapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading);
 //        mMapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading);
 
-        if (!checkLocationServicesStatus()) {
-
-            showDialogForLocationServiceSetting();
-        }else {
-
-            checkRunTimePermission();
 
 
-        }
+
+//        if (!checkLocationServicesStatus()) {
+//
+//            showDialogForLocationServiceSetting();
+//        }else {
+//
+//            checkRunTimePermission();
+//
+//
+//        }
 
 //        mMapView.setCurrentLocationEventListener(this);
 //        requestSearchLocal(mCurrentLng, mCurrentLat);
@@ -263,6 +291,7 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
                     int tagNum = 0;
                     for (Document document : bigMartList) {
                         MapPOIItem marker = new MapPOIItem();
+
                         marker.setItemName(document.getPlaceName());
                         marker.setTag(tagNum++);
                         double x = Double.parseDouble(document.getY());
@@ -319,8 +348,6 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
         if (!isTrackingMode) {
             mMapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
         }
-
-
 
 
     }
@@ -587,16 +614,19 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
         mSearchName = document.getPlaceName();
         mSearchLng = Double.parseDouble(document.getX());
         mSearchLat = Double.parseDouble(document.getY());
-        mMapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(mSearchLat, mSearchLng), true);
-        mMapView.removePOIItem(searchMarker);
+//        mMapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(mSearchLat, mSearchLng), true);
+//        mMapView.removePOIItem(searchMarker);
+        mMapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
+        mMapView.removeAllCircles();
+        mMapView.removeAllPOIItems();
         searchMarker.setItemName(mSearchName);
         searchMarker.setTag(10000);
         MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(mSearchLat, mSearchLng);
         searchMarker.setMapPoint(mapPoint);
         searchMarker.setMarkerType(MapPOIItem.MarkerType.BluePin); // 기본으로 제공하는 BluePin 마커 모양.
-        searchMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
+//        searchMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
         //마커 드래그 가능하게 설정
-        searchMarker.setDraggable(true);
+//        searchMarker.setDraggable(true);
         mMapView.addPOIItem(searchMarker);
     }
 

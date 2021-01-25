@@ -72,7 +72,7 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.Locati
             public void onClick(View view) {
                 editText.setText(model.getPlaceName());
                 recyclerView.setVisibility(View.GONE);
-                BusProvider.getInstance().post(model);
+                BusProvider.getInstance().post(model);// 이게 데이터 주고 받는데 중요한 역활을 한다. 타는 BUS 아님
             }
         });
     }
