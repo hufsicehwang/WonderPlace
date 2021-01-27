@@ -9,6 +9,10 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 // 여긴 내가 모델을 받은걸 리스트화 시킨 별도로 만든
+//JSON - @SerializedName("속성명")으로 속성명 일치시켜주면 변수명 다르게도 가능
+//
+//        XML - @Element(name="속성명") XML은 @Element 애노테이션 사용
+
 public class CategoryResult implements Parcelable {
 
     @SerializedName("meta")

@@ -143,10 +143,6 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
 
 
 
-
-
-
-
         mSearchEdit = findViewById(R.id.map_et_search);
         recyclerView = findViewById(R.id.map_recyclerview);
         LocationAdapter locationAdapter = new LocationAdapter(documentArrayList, getApplicationContext(), mSearchEdit, recyclerView);
@@ -171,7 +167,7 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
                     locationAdapter.clear();
                     locationAdapter.notifyDataSetChanged();
                     ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
-                    Call<CategoryResult> call = apiInterface.getSearchLocation( charSequence.toString(), 15);
+                    Call<CategoryResult> call = apiInterface.getSearchLocation( charSequence.toString(), 15); //통신하기위한 기본 세팅
                     call.enqueue(new Callback<CategoryResult>() {
                         @Override
                         public void onResponse(@NotNull Call<CategoryResult> call, @NotNull Response<CategoryResult> response) {
@@ -265,15 +261,15 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
 
         //여밑에가 통신 코드를 메인에서 세팅해서 필요한거 불러오기
         ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);   // ApiInterface 객체에 레트로핏 객체를 매핑시키는 부분이다.
-        Call<CategoryResult> call = apiInterface.getSearchCategory("MT1", x + "", y + "", 1000);
-        call.enqueue(new Callback<CategoryResult>() {
+        Call<CategoryResult> call = apiInterface.getSearchCategory("MT1", x + "", y + "", 1000); //레트로핏 객체를 통해 만들어논 요청 메소드에 원하는거 담아서 보내기
+        call.enqueue(new Callback<CategoryResult>() { //실행하는 메소드
             @Override
             public void onResponse(@NonNull Call<CategoryResult> call, @NonNull Response<CategoryResult> response) {
 
                 if (response.isSuccessful()) {
 
 
-                    bigMartList.addAll(response.body().getDocuments());
+                    bigMartList.addAll(response.body().getDocuments()); //리스트안에 응답받아온것을(documents를) 넣는다.
                     Log.d(LOG_TAG, "bigMartList Success");
 
 
@@ -608,7 +604,7 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
 
     }
 
-    @Subscribe //검색예시 클릭시 이벤트 오토버스
+    @Subscribe //검색예시 클릭시 이벤트 오토버스 버스 일루온나
     public void search(Document document) {//public항상 붙여줘야함
 //        FancyToast.makeText(getApplicationContext(), document.getPlaceName() + " 검색", FancyToast.LENGTH_SHORT, FancyToast.SUCCESS, true).show();
         mSearchName = document.getPlaceName();
