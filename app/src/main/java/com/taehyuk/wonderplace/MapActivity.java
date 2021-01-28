@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -35,6 +36,7 @@ import com.taehyuk.wonderplace.model.category_search.CategoryResult;
 import com.taehyuk.wonderplace.model.category_search.Document;
 
 
+import net.daum.android.map.coord.MapCoordLatLng;
 import net.daum.mf.map.api.MapCircle;
 import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
@@ -59,11 +61,11 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
     private MapView mMapView;
     ViewGroup mMapViewContainer;
     private Button btn;
-    private Button search_btn;
+    private Button getmarker_btn;
     private Button currentlocation;
     EditText mSearchEdit;
     RecyclerView recyclerView;
-
+    TextView textView;
 
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int PERMISSIONS_REQUEST_CODE = 100;
@@ -72,12 +74,18 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
     MapPoint currentMapPoint;
     private double mCurrentLng; //Long = X, Lat = Yㅌ
     private double mCurrentLat;
-    private double mSearchLng = -1;
-    private double mSearchLat = -1;
+    private double mSearchLng;
+    private double mSearchLat;
     private String mSearchName;
+
+    private float saveLng;
+    private float saveLat;
+
     boolean isTrackingMode = false;
     Bus bus = BusProvider.getInstance();
     ArrayList<Document> bigMartList = new ArrayList<>();
+
+    ArrayList<Double> savemarkerlist = new ArrayList<Double>();
 
     ArrayList<Document> documentArrayList = new ArrayList<>(); //지역명 검색 결과 리스트
 
@@ -106,23 +114,26 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
             }
         });
 
-//        search_btn = findViewById(R.id.search_btn);
-//        search_btn.setOnClickListener(new Button.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View v) {
-//                isTrackingMode = false;
-//                mMapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
-//                if (mSearchLat != -1 && mSearchLng != -1) {
-//                    mMapView.removeAllPOIItems();
-//                    mMapView.removeAllCircles();
-//                    mMapView.addPOIItem(searchMarker);
-//                    requestSearchLocal(mSearchLng, mSearchLat);
-//                } else {
-//                }
-//
-//            }
-//        });
+        getmarker_btn = findViewById(R.id.getmarker);
+        getmarker_btn.setOnClickListener(new Button.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                searchMarker.setItemName(mSearchName);
+                searchMarker.setTag(10000);
+                MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(savemarkerlist.get(0),savemarkerlist.get(1));
+                searchMarker.setMapPoint(mapPoint);
+                searchMarker.setMarkerType(MapPOIItem.MarkerType.BluePin); // 기본으로 제공하는 BluePin 마커 모양.
+                mMapView.addPOIItem(searchMarker);
+
+//                내부저장소 응답
+//                SharedPreferences sharedPreferences= getSharedPreferences("test", MODE_PRIVATE);    // test 이름의 기본모드 설정, 만약 test key값이 있다면 해당 값을 불러옴.
+//                String inputText = sharedPreferences.getString("inputText","");
+//                textView.setText(inputText);    // TextView에 SharedPreferences에 저장되어있던 값 찍기.
+
+            }
+        });
 
         currentlocation = findViewById(R.id.currentlocation);
         currentlocation.setOnClickListener(new Button.OnClickListener() {
@@ -610,20 +621,36 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
         mSearchName = document.getPlaceName();
         mSearchLng = Double.parseDouble(document.getX());
         mSearchLat = Double.parseDouble(document.getY());
+
 //        mMapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(mSearchLat, mSearchLng), true);
 //        mMapView.removePOIItem(searchMarker);
         mMapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
         mMapView.removeAllCircles();
-        mMapView.removeAllPOIItems();
-        searchMarker.setItemName(mSearchName);
-        searchMarker.setTag(10000);
-        MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(mSearchLat, mSearchLng);
-        searchMarker.setMapPoint(mapPoint);
-        searchMarker.setMarkerType(MapPOIItem.MarkerType.BluePin); // 기본으로 제공하는 BluePin 마커 모양.
+//        mMapView.removeAllPOIItems();
+
+
+//        searchMarker.setItemName(mSearchName);
+//        searchMarker.setTag(10000);
+//        MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(mSearchLat, mSearchLng);
+//        searchMarker.setMapPoint(mapPoint);
+//        searchMarker.setMarkerType(MapPOIItem.MarkerType.BluePin); // 기본으로 제공하는 BluePin 마커 모양.
 //        searchMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
-        //마커 드래그 가능하게 설정
-//        searchMarker.setDraggable(true);
-        mMapView.addPOIItem(searchMarker);
+//        //마커 드래그 가능하게 설정
+////        searchMarker.setDraggable(true);
+//        mMapView.addPOIItem(searchMarker);
+
+//        int index = 0;
+        savemarkerlist.add(0,mSearchLat);
+        savemarkerlist.add(1,mSearchLng);
+
+
+
+//        //눌르면 마커 값이 저장되는 모드 구현, 내부 저장소 신청
+//        SharedPreferences sharedPreferences= getSharedPreferences("test", MODE_PRIVATE);    // markersave 이름의 기본모드 설정
+//        SharedPreferences.Editor editor= sharedPreferences.edit(); //sharedPreferences를 제어할 editor를 선언
+//        editor.putString("inputText","김태혁"); // key,value 형식으로 저장
+//        editor.commit();    //최종 커밋. 커밋을 해야 저장이 된다.
+//        Toast.makeText(this, "저장되었습니다.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
